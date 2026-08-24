@@ -1,0 +1,21 @@
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
+
+// This client uses the service role key and should ONLY be used in server-side code
+// NEVER expose this on the client side
+export function createAdminClient() {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set')
+  }
+
+  return createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  )
+}
