@@ -9,46 +9,75 @@ import type { Database } from '@/types/database'
 type ProfileInsert = Database['public']['Tables']['profiles']['Insert']
 
 export async function getProfile() {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .limit(1)
-    .single()
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
 
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching profile:', error)
+    if (error) {
+      console.error('Error fetching profile:', error.message)
+      return null
+    }
+    return data
+  } catch (err: any) {
+    console.error('Unexpected error fetching profile:', err?.message || err)
     return null
   }
-  return data
 }
 
 export async function upsertProfile(
   formData: Partial<ProfileInsert>
 ): Promise<ActionResult> {
-  const supabase = createAdminClient()
+  try {
+    const supabase = createAdminClient()
 
-  const existing = await getProfile()
-
-  let result
-  if (existing) {
-    result = await supabase
+    // Query existing profile using admin client to guarantee access
+    const { data: existing, error: fetchError } = await supabase
       .from('profiles')
-      .update({ ...formData, updated_at: new Date().toISOString() })
-      .eq('id', existing.id)
-  } else {
-    result = await supabase
-      .from('profiles')
-      .insert([formData as ProfileInsert])
-  }
+      .select('id')
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
 
-  if (result.error) {
-    return { success: false, error: result.error.message }
-  }
+    if (fetchError) {
+      console.error('Error querying profile:', fetchError.message)
+      return { success: false, error: `Database error: ${fetchError.message}` }
+    }
 
-  revalidatePath('/')
-  revalidatePath('/admin/profile')
-  return { success: true, message: 'Profile updated successfully' }
+    let result
+    if (existing?.id) {
+      result = await supabase
+        .from('profiles')
+        .update({
+          ...formData,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existing.id)
+    } else {
+      result = await supabase
+        .from('profiles')
+        .insert([formData as ProfileInsert])
+    }
+
+    if (result.error) {
+      console.error('Error updating profile in Supabase:', result.error.message)
+      return { success: false, error: result.error.message }
+    }
+
+    revalidatePath('/')
+    revalidatePath('/admin/profile')
+    return { success: true, message: 'Profile updated successfully' }
+  } catch (err: any) {
+    console.error('Unexpected error in upsertProfile:', err)
+    return {
+      success: false,
+      error: err?.message || 'An unexpected error occurred while saving profile.',
+    }
+  }
 }
 
 export async function getSocialLinks() {

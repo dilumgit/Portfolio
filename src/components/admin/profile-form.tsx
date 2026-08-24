@@ -16,22 +16,29 @@ import type { Profile } from '@/types/portfolio'
 const profileSchema = z.object({
   full_name: z.string().min(1, 'Full name is required'),
   professional_title: z.string().min(1, 'Professional title is required'),
-  tagline: z.string().optional(),
-  about_me: z.string().optional(),
-  location: z.string().optional(),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
-  phone: z.string().optional(),
-  website: z.string().url('Invalid URL').optional().or(z.literal('')),
-  github_url: z.string().url('Invalid URL').optional().or(z.literal('')),
-  linkedin_url: z.string().url('Invalid URL').optional().or(z.literal('')),
-  profile_image_url: z.string().url('Invalid URL').optional().or(z.literal('')),
-  hero_heading: z.string().optional(),
-  hero_subtitle: z.string().optional(),
-  hero_description: z.string().optional(),
-  hero_cta_text: z.string().optional(),
-  hero_cta_url: z.string().optional(),
-  hero_secondary_cta_text: z.string().optional(),
-  hero_secondary_cta_url: z.string().optional(),
+  tagline: z.string().optional().nullable(),
+  about_me: z.string().optional().nullable(),
+  location: z.string().optional().nullable(),
+  email: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (val) => !val || val.trim() === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()),
+      { message: 'Please enter a valid email address' }
+    ),
+  phone: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
+  github_url: z.string().optional().nullable(),
+  linkedin_url: z.string().optional().nullable(),
+  profile_image_url: z.string().optional().nullable(),
+  hero_heading: z.string().optional().nullable(),
+  hero_subtitle: z.string().optional().nullable(),
+  hero_description: z.string().optional().nullable(),
+  hero_cta_text: z.string().optional().nullable(),
+  hero_cta_url: z.string().optional().nullable(),
+  hero_secondary_cta_text: z.string().optional().nullable(),
+  hero_secondary_cta_url: z.string().optional().nullable(),
 })
 
 type ProfileFormData = z.infer<typeof profileSchema>
@@ -73,25 +80,45 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   const onSubmit = (data: ProfileFormData) => {
     startTransition(async () => {
-      const result = await upsertProfile(data)
+      const sanitizedData = {
+        ...data,
+        full_name: data.full_name.trim(),
+        professional_title: data.professional_title.trim(),
+      }
+      const result = await upsertProfile(sanitizedData)
       if (result.success) {
         toast({
           title: 'Profile updated',
-          description: 'Your profile has been saved successfully.',
+          description: result.message || 'Your profile has been saved successfully.',
           variant: 'success' as any,
         })
       } else {
         toast({
-          title: 'Error',
-          description: result.error,
+          title: 'Failed to save profile',
+          description: result.error || 'An unexpected error occurred while saving profile.',
           variant: 'destructive',
         })
       }
     })
   }
 
+  const onInvalid = (formErrors: any) => {
+    const errorKeys = Object.keys(formErrors)
+    if (errorKeys.length > 0) {
+      const firstError = formErrors[errorKeys[0]]
+      const fieldLabel = errorKeys[0].replace(/_/g, ' ')
+      toast({
+        title: 'Validation Error',
+        description:
+          firstError?.message ||
+          `Please check the ${fieldLabel} field and fix any errors before saving.`,
+        variant: 'destructive',
+      })
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-10">
       {/* Personal Information */}
       <section className="space-y-6">
         <div>
