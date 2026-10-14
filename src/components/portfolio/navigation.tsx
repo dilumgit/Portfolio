@@ -168,7 +168,7 @@ export function Navigation({ profile, resume }: NavigationProps) {
             transition={{ duration: 0.2 }}
             className="fixed inset-x-0 top-16 z-40 md:hidden"
           >
-            <div className="bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-xl">
+            <div className="bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
               <div className="container mx-auto px-4 py-4 space-y-1">
                 {defaultNavItems.map((item) => (
                   <a

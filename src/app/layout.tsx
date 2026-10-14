@@ -27,16 +27,17 @@ export const metadata: Metadata = {
     'Deep Learning',
     'Data Science',
   ],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   authors: [{ name: 'Portfolio Owner' }],
   creator: 'Portfolio Owner',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_SITE_URL,
+    url: process.env.NEXT_PUBLIC_SITE_URL || '/',
     siteName: 'Portfolio',
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_SITE_URL}/og-image.png`,
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Portfolio',
@@ -45,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    images: [`${process.env.NEXT_PUBLIC_SITE_URL}/og-image.png`],
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,

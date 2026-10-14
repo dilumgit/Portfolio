@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdmin } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import type { ActionResult } from '@/types/portfolio'
 import type { Database } from '@/types/database'
@@ -27,6 +28,12 @@ export async function getResearch() {
 }
 
 export async function getAllResearch() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllResearch:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('research')
@@ -38,6 +45,11 @@ export async function getAllResearch() {
 }
 
 export async function createResearch(data: ResearchInsert): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('research').insert([data])
   if (error) return { success: false, error: error.message }
@@ -48,6 +60,11 @@ export async function createResearch(data: ResearchInsert): Promise<ActionResult
 }
 
 export async function updateResearch(id: string, data: Partial<ResearchInsert>): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('research').update({ ...data, updated_at: new Date().toISOString() }).eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -57,6 +74,11 @@ export async function updateResearch(id: string, data: Partial<ResearchInsert>):
 }
 
 export async function deleteResearch(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('research').delete().eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -78,6 +100,12 @@ export async function getAchievements() {
 }
 
 export async function getAllAchievements() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllAchievements:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase.from('achievements').select('*').order('display_order')
   if (error) return []
@@ -85,6 +113,11 @@ export async function getAllAchievements() {
 }
 
 export async function createAchievement(data: AchievementInsert): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('achievements').insert([data])
   if (error) return { success: false, error: error.message }
@@ -94,6 +127,11 @@ export async function createAchievement(data: AchievementInsert): Promise<Action
 }
 
 export async function updateAchievement(id: string, data: Partial<AchievementInsert>): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('achievements').update({ ...data, updated_at: new Date().toISOString() }).eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -102,6 +140,11 @@ export async function updateAchievement(id: string, data: Partial<AchievementIns
 }
 
 export async function deleteAchievement(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('achievements').delete().eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -122,6 +165,12 @@ export async function getServices() {
 }
 
 export async function getAllServices() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllServices:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase.from('services').select('*').order('display_order')
   if (error) return []
@@ -129,6 +178,11 @@ export async function getAllServices() {
 }
 
 export async function createService(data: ServiceInsert): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('services').insert([data])
   if (error) return { success: false, error: error.message }
@@ -138,6 +192,11 @@ export async function createService(data: ServiceInsert): Promise<ActionResult> 
 }
 
 export async function updateService(id: string, data: Partial<ServiceInsert>): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('services').update({ ...data, updated_at: new Date().toISOString() }).eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -146,6 +205,11 @@ export async function updateService(id: string, data: Partial<ServiceInsert>): P
 }
 
 export async function deleteService(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('services').delete().eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -166,6 +230,12 @@ export async function getQualifications() {
 }
 
 export async function getAllQualifications() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllQualifications:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase.from('qualifications').select('*').order('display_order')
   if (error) return []
@@ -173,6 +243,11 @@ export async function getAllQualifications() {
 }
 
 export async function createQualification(data: QualificationInsert): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('qualifications').insert([data])
   if (error) return { success: false, error: error.message }
@@ -182,6 +257,11 @@ export async function createQualification(data: QualificationInsert): Promise<Ac
 }
 
 export async function updateQualification(id: string, data: Partial<QualificationInsert>): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('qualifications').update({ ...data, updated_at: new Date().toISOString() }).eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -190,6 +270,11 @@ export async function updateQualification(id: string, data: Partial<Qualificatio
 }
 
 export async function deleteQualification(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('qualifications').delete().eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -206,6 +291,12 @@ export async function submitContactMessage(data: ContactInsert): Promise<ActionR
 }
 
 export async function getAllContactMessages() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllContactMessages:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('contact_messages')
@@ -216,6 +307,11 @@ export async function getAllContactMessages() {
 }
 
 export async function markMessageRead(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('contact_messages').update({ is_read: true }).eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -224,6 +320,11 @@ export async function markMessageRead(id: string): Promise<ActionResult> {
 }
 
 export async function deleteContactMessage(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('contact_messages').delete().eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -253,6 +354,12 @@ export async function getActiveResume() {
 }
 
 export async function getAllResumes() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllResumes:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase.from('resume').select('*').order('created_at', { ascending: false })
   if (error) return []
@@ -260,6 +367,11 @@ export async function getAllResumes() {
 }
 
 export async function createResume(data: ResumeInsert): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   // Deactivate all existing
   await supabase.from('resume').update({ is_active: false }).neq('id', 'none')
@@ -271,6 +383,11 @@ export async function createResume(data: ResumeInsert): Promise<ActionResult> {
 }
 
 export async function setActiveResume(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   await supabase.from('resume').update({ is_active: false }).neq('id', id)
   const { error } = await supabase.from('resume').update({ is_active: true }).eq('id', id)
@@ -280,6 +397,11 @@ export async function setActiveResume(id: string): Promise<ActionResult> {
 }
 
 export async function deleteResume(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('resume').delete().eq('id', id)
   if (error) return { success: false, error: error.message }
@@ -297,6 +419,11 @@ export async function getSiteSettings(): Promise<Record<string, string>> {
 }
 
 export async function updateSiteSetting(key: string, value: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('site_settings')
@@ -307,6 +434,11 @@ export async function updateSiteSetting(key: string, value: string): Promise<Act
 }
 
 export async function updateSiteSettings(settings: Record<string, string>): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const rows = Object.entries(settings).map(([key, value]) => ({
     key,

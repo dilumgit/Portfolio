@@ -51,7 +51,7 @@ export function EducationSection({ education }: EducationSectionProps) {
           {/* Timeline */}
           <div className="relative max-w-3xl mx-auto">
             {/* Timeline vertical line */}
-            <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-violet-500/50 via-violet-500/20 to-transparent" />
+            <div className="absolute left-4 sm:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-violet-500/50 via-violet-500/20 to-transparent" />
 
             <div className="space-y-8">
               {sortedEducation.map((edu, index) => (
@@ -59,12 +59,12 @@ export function EducationSection({ education }: EducationSectionProps) {
                   key={edu.id}
                   variants={fadeInUp}
                   transition={{ delay: index * 0.1 }}
-                  className="relative pl-20"
+                  className="relative pl-10 sm:pl-20"
                 >
                   {/* Timeline dot */}
-                  <div className="absolute left-8 -translate-x-1/2 top-6 w-4 h-4 rounded-full bg-violet-500 border-2 border-background ring-2 ring-violet-500/30" />
+                  <div className="absolute left-4 sm:left-8 -translate-x-1/2 top-6 w-4 h-4 rounded-full bg-violet-500 border-2 border-background ring-2 ring-violet-500/30" />
 
-                  <div className="glass-card p-6 hover:border-violet-500/30 transition-all duration-300 group">
+                  <div className="glass-card p-4 sm:p-6 hover:border-violet-500/30 transition-all duration-300 group">
                     <div className="flex items-start gap-4">
                       {/* Logo */}
                       <div className="shrink-0 w-12 h-12 rounded-xl overflow-hidden border border-border bg-secondary/50 flex items-center justify-center">

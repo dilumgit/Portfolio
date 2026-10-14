@@ -16,6 +16,12 @@ export default async function AdminAuthLayout({
     redirect('/admin/login')
   }
 
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase()
+  if (adminEmail && user.email?.trim().toLowerCase() !== adminEmail) {
+    console.error(`Unauthorized admin dashboard access attempt by ${user.email}`)
+    redirect('/admin/login?error=Unauthorized')
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <AdminSidebar />

@@ -40,14 +40,26 @@ export async function middleware(request: NextRequest) {
   const isResetPasswordPage = request.nextUrl.pathname === '/admin/reset-password'
   const isPublicAuthRoute = isLoginPage || isForgotPasswordPage || isResetPasswordPage
 
-  if (isAdminRoute && !isPublicAuthRoute && !user) {
-    const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = '/admin/login'
-    loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
-    return NextResponse.redirect(loginUrl)
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase()
+  const isUserAdmin = Boolean(user && (!adminEmail || user.email?.trim().toLowerCase() === adminEmail))
+
+  if (isAdminRoute && !isPublicAuthRoute) {
+    if (!user) {
+      const loginUrl = request.nextUrl.clone()
+      loginUrl.pathname = '/admin/login'
+      loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    if (!isUserAdmin) {
+      const loginUrl = request.nextUrl.clone()
+      loginUrl.pathname = '/admin/login'
+      loginUrl.searchParams.set('error', 'Unauthorized: Admin access required.')
+      return NextResponse.redirect(loginUrl)
+    }
   }
 
-  if ((isLoginPage || isForgotPasswordPage) && user) {
+  if ((isLoginPage || isForgotPasswordPage) && isUserAdmin) {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = '/admin/dashboard'
     return NextResponse.redirect(dashboardUrl)

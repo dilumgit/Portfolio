@@ -1,12 +1,18 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdmin } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import type { ActionResult } from '@/types/portfolio'
 
 export async function uploadProfileImage(
   formData: FormData
 ): Promise<ActionResult<{ url: string }>> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   try {
     const supabase = createAdminClient()
     const file = formData.get('file') as File
@@ -100,6 +106,11 @@ export async function uploadProfileImage(
 }
 
 export async function removeProfileImage(): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   try {
     const supabase = createAdminClient()
 
@@ -153,6 +164,11 @@ export async function uploadImage(
   formData: FormData,
   bucket: string = 'portfolio-images'
 ): Promise<ActionResult<{ url: string }>> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const file = formData.get('file') as File
 
@@ -196,6 +212,11 @@ export async function uploadImage(
 export async function uploadResume(
   formData: FormData
 ): Promise<ActionResult<{ url: string; name: string; size: number }>> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const file = formData.get('file') as File
 
@@ -241,6 +262,11 @@ export async function deleteFile(
   path: string,
   bucket: string = 'portfolio-images'
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.storage.from(bucket).remove([path])
 
@@ -250,4 +276,3 @@ export async function deleteFile(
 
   return { success: true }
 }
-

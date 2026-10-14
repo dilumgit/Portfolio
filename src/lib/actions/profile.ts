@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdmin } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import type { ActionResult } from '@/types/portfolio'
 import type { Database } from '@/types/database'
@@ -32,6 +33,11 @@ export async function getProfile() {
 export async function upsertProfile(
   formData: Partial<ProfileInsert>
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   try {
     const supabase = createAdminClient()
 
@@ -96,6 +102,12 @@ export async function getSocialLinks() {
 }
 
 export async function getAllSocialLinks() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllSocialLinks:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('social_links')
@@ -112,6 +124,11 @@ export async function getAllSocialLinks() {
 export async function upsertSocialLink(
   data: Database['public']['Tables']['social_links']['Insert']
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
 
   const result = data.id
@@ -130,6 +147,11 @@ export async function upsertSocialLink(
 }
 
 export async function deleteSocialLink(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('social_links').delete().eq('id', id)
 

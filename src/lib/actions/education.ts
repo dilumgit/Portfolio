@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdmin } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import { sortEducationReverseChronological } from '@/lib/utils'
 import type { ActionResult } from '@/types/portfolio'
@@ -33,6 +34,12 @@ export async function getEducation() {
 }
 
 export async function getAllEducation() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllEducation:', auth.error)
+    return []
+  }
+
   try {
     const supabase = createAdminClient()
     const { data, error } = await supabase
@@ -57,6 +64,11 @@ export async function getAllEducation() {
 export async function createEducation(
   data: EducationInsert
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('education').insert([data])
 
@@ -73,6 +85,11 @@ export async function updateEducation(
   id: string,
   data: Partial<EducationInsert>
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('education')
@@ -89,6 +106,11 @@ export async function updateEducation(
 }
 
 export async function deleteEducation(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('education').delete().eq('id', id)
 

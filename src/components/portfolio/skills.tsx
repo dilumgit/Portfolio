@@ -31,12 +31,12 @@ function SkillCard({ skill }: { skill: Skill }) {
       whileHover={{ scale: 1.02 }}
       className="glass-card p-4 group hover:border-violet-500/30 transition-all duration-300"
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between flex-wrap gap-1 mb-3">
         <span className="font-medium text-sm group-hover:text-violet-400 transition-colors">
           {skill.name}
         </span>
         {typeof skill.level === 'number' && skill.level > 0 && (
-          <span className="text-xs text-muted-foreground">{levelLabel}</span>
+          <span className="text-xs text-muted-foreground shrink-0">{levelLabel}</span>
         )}
       </div>
 

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdmin } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import { slugify } from '@/lib/utils'
 import type { ActionResult, ProjectWithImages } from '@/types/portfolio'
@@ -62,6 +63,12 @@ export async function getProjectBySlug(slug: string): Promise<ProjectWithImages 
 }
 
 export async function getAllProjects(): Promise<ProjectWithImages[]> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllProjects:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('projects')
@@ -78,6 +85,11 @@ export async function getAllProjects(): Promise<ProjectWithImages[]> {
 export async function createProject(
   data: Omit<ProjectInsert, 'slug'>
 ): Promise<ActionResult<{ id: string; slug: string }>> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const slug = slugify(data.title)
 
@@ -101,6 +113,11 @@ export async function updateProject(
   id: string,
   data: Partial<ProjectInsert>
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
 
   const updateData = { ...data, updated_at: new Date().toISOString() }
@@ -124,6 +141,11 @@ export async function updateProject(
 }
 
 export async function deleteProject(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('projects').delete().eq('id', id)
 
@@ -142,6 +164,11 @@ export async function addProjectImage(
   imageUrl: string,
   caption?: string
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('project_images').insert([
     {
@@ -161,6 +188,11 @@ export async function addProjectImage(
 }
 
 export async function deleteProjectImage(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('project_images')

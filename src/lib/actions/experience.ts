@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdmin } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import type { ActionResult } from '@/types/portfolio'
 import type { Database } from '@/types/database'
@@ -24,6 +25,12 @@ export async function getExperience() {
 }
 
 export async function getAllExperience() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllExperience:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('experience')
@@ -37,6 +44,11 @@ export async function getAllExperience() {
 export async function createExperience(
   data: ExperienceInsert
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('experience').insert([data])
 
@@ -53,6 +65,11 @@ export async function updateExperience(
   id: string,
   data: Partial<ExperienceInsert>
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('experience')
@@ -69,6 +86,11 @@ export async function updateExperience(
 }
 
 export async function deleteExperience(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('experience').delete().eq('id', id)
 

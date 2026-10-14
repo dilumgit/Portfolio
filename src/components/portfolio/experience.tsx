@@ -61,7 +61,7 @@ export function ExperienceSection({ experience }: ExperienceProps) {
 
           {/* Timeline */}
           <div className="relative max-w-3xl mx-auto">
-            <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-violet-500/50 via-violet-500/20 to-transparent" />
+            <div className="absolute left-4 sm:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-violet-500/50 via-violet-500/20 to-transparent" />
 
             <div className="space-y-8">
               {experience.map((exp, index) => (
@@ -69,16 +69,16 @@ export function ExperienceSection({ experience }: ExperienceProps) {
                   key={exp.id}
                   variants={fadeInUp}
                   transition={{ delay: index * 0.1 }}
-                  className="relative pl-20"
+                  className="relative pl-10 sm:pl-20"
                 >
                   {/* Timeline dot */}
                   <div
-                    className={`absolute left-8 -translate-x-1/2 top-6 w-4 h-4 rounded-full border-2 border-background ring-2 ring-violet-500/30 ${
+                    className={`absolute left-4 sm:left-8 -translate-x-1/2 top-6 w-4 h-4 rounded-full border-2 border-background ring-2 ring-violet-500/30 ${
                       exp.is_current ? 'bg-green-500 ring-green-500/30' : 'bg-violet-500'
                     }`}
                   />
 
-                  <div className="glass-card p-6 hover:border-violet-500/30 transition-all duration-300 group">
+                  <div className="glass-card p-4 sm:p-6 hover:border-violet-500/30 transition-all duration-300 group">
                     <div className="flex items-start gap-4">
                       {/* Company logo */}
                       <div className="shrink-0 w-12 h-12 rounded-xl overflow-hidden border border-border bg-secondary/50 flex items-center justify-center">

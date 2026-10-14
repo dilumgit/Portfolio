@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdmin } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import type { ActionResult } from '@/types/portfolio'
 import type { Database } from '@/types/database'
@@ -25,6 +26,12 @@ export async function getSkillCategories() {
 }
 
 export async function getAllSkillCategories() {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    console.error('Unauthorized access to getAllSkillCategories:', auth.error)
+    return []
+  }
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('skill_categories')
@@ -41,6 +48,11 @@ export async function getAllSkillCategories() {
 export async function createSkillCategory(
   data: SkillCategoryInsert
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('skill_categories').insert([data])
 
@@ -57,6 +69,11 @@ export async function updateSkillCategory(
   id: string,
   data: Partial<SkillCategoryInsert>
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('skill_categories')
@@ -72,6 +89,11 @@ export async function updateSkillCategory(
 }
 
 export async function deleteSkillCategory(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('skill_categories')
@@ -87,6 +109,11 @@ export async function deleteSkillCategory(id: string): Promise<ActionResult> {
 }
 
 export async function createSkill(data: SkillInsert): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('skills').insert([data])
 
@@ -103,6 +130,11 @@ export async function updateSkill(
   id: string,
   data: Partial<SkillInsert>
 ): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase
     .from('skills')
@@ -118,6 +150,11 @@ export async function updateSkill(
 }
 
 export async function deleteSkill(id: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
   const supabase = createAdminClient()
   const { error } = await supabase.from('skills').delete().eq('id', id)
 
