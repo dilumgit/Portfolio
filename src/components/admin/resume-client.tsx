@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
-import { FileText, Upload, Trash2, CheckCircle, Download, ExternalLink } from 'lucide-react'
+import React, { useRef, useState, useTransition } from 'react'
+import { FileText, Upload, Trash2, CheckCircle, Download, ExternalLink, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PageHeader, EmptyState } from '@/components/admin/shared'
 import { createResume, setActiveResume, deleteResume } from '@/lib/actions/content'
+import { uploadResume } from '@/lib/actions/storage'
 import { toast } from '@/hooks/use-toast'
 import { formatDate } from '@/lib/utils'
 import type { Resume } from '@/types/portfolio'
@@ -17,8 +18,46 @@ export function ResumeClient({ resumes: initial }: Props) {
   const [fileUrl, setFileUrl] = useState('')
   const [fileName, setFileName] = useState('')
   const [isPending, startTransition] = useTransition()
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleAdd = (ev: React.FormEvent) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const uploadResult = await uploadResume(formData)
+      if (!uploadResult.success) {
+        toast({ title: 'Upload failed', description: uploadResult.error, variant: 'destructive' })
+        return
+      }
+
+      if (uploadResult.data) {
+        const createResult = await createResume({
+          file_url: uploadResult.data.url,
+          file_name: uploadResult.data.name,
+          file_size: uploadResult.data.size,
+        })
+        if (createResult.success) {
+          toast({ title: 'Resume uploaded and set as active', variant: 'success' as any })
+          window.location.reload()
+        } else {
+          toast({ title: 'Saved file but failed to register resume', description: createResult.error, variant: 'destructive' })
+        }
+      }
+    } catch (err: any) {
+      toast({ title: 'Upload error', description: err?.message || 'An unexpected error occurred', variant: 'destructive' })
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleAddUrl = (ev: React.FormEvent) => {
     ev.preventDefault()
     if (!fileUrl || !fileName) return
     startTransition(async () => {
@@ -46,26 +85,63 @@ export function ResumeClient({ resumes: initial }: Props) {
     <div>
       <PageHeader title="Resume / CV" description="Manage your downloadable CV files" />
 
-      {/* Add resume form */}
-      <div className="glass-card p-6 mb-8">
-        <h2 className="text-lg font-semibold mb-4">Add Resume</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Upload your CV to Supabase Storage and paste the public URL below, or use any direct URL to your CV file.
-        </p>
-        <form onSubmit={handleAdd} className="space-y-4">
+      {/* Direct upload or URL */}
+      <div className="glass-card p-6 mb-8 space-y-6">
+        <div>
+          <h2 className="text-lg font-semibold">Upload New Resume</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Upload your PDF or Word resume directly, or enter an external document URL.
+          </p>
+        </div>
+
+        {/* Direct file upload area */}
+        <div className="p-6 border-2 border-dashed border-border rounded-xl bg-card/30 text-center space-y-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+          <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto text-violet-400">
+            {isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
+          </div>
+          <div>
+            <Button
+              type="button"
+              variant="gradient"
+              disabled={isUploading || isPending}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {isUploading ? 'Uploading...' : 'Choose Resume File (PDF/DOC)'}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">Maximum file size: 10 MB</p>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border/50" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">Or add via direct URL</span>
+          </div>
+        </div>
+
+        <form onSubmit={handleAddUrl} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">File Name <span className="text-destructive">*</span></label>
-              <Input placeholder="My_CV_2024.pdf" value={fileName} onChange={e => setFileName(e.target.value)} required />
+              <Input placeholder="My_Resume.pdf" value={fileName} onChange={e => setFileName(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">File URL <span className="text-destructive">*</span></label>
-              <Input placeholder="https://supabase.co/storage/v1/..." value={fileUrl} onChange={e => setFileUrl(e.target.value)} required />
+              <Input placeholder="https://..." value={fileUrl} onChange={e => setFileUrl(e.target.value)} required />
             </div>
           </div>
-          <Button type="submit" variant="gradient" disabled={isPending || !fileUrl || !fileName}>
+          <Button type="submit" variant="outline" disabled={isPending || isUploading || !fileUrl || !fileName}>
             <Upload className="w-4 h-4" />
-            {isPending ? 'Adding...' : 'Add Resume'}
+            {isPending ? 'Adding...' : 'Add via URL'}
           </Button>
         </form>
       </div>

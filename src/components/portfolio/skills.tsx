@@ -35,12 +35,12 @@ function SkillCard({ skill }: { skill: Skill }) {
         <span className="font-medium text-sm group-hover:text-violet-400 transition-colors">
           {skill.name}
         </span>
-        {skill.level && (
+        {typeof skill.level === 'number' && skill.level > 0 && (
           <span className="text-xs text-muted-foreground">{levelLabel}</span>
         )}
       </div>
 
-      {skill.level && (
+      {typeof skill.level === 'number' && skill.level > 0 && (
         <div className="space-y-1">
           <div className="h-1.5 rounded-full bg-secondary/50 overflow-hidden">
             <motion.div
@@ -67,13 +67,15 @@ function SkillCard({ skill }: { skill: Skill }) {
 }
 
 export function Skills({ categories }: SkillsProps) {
-  const [activeCategory, setActiveCategory] = useState<string | null>(
-    categories[0]?.id || null
+  const visibleCategories = (categories || []).filter(
+    (c) => c.skills && c.skills.filter((s) => s.is_visible).length > 0
   )
 
-  if (!categories.length) return null
+  const [activeCategory, setActiveCategory] = useState<string | null>(
+    visibleCategories[0]?.id || null
+  )
 
-  const visibleCategories = categories.filter((c) => c.skills.filter((s) => s.is_visible).length > 0)
+  if (!visibleCategories.length) return null
 
   const currentCategory =
     visibleCategories.find((c) => c.id === activeCategory) || visibleCategories[0]

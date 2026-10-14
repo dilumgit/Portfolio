@@ -63,6 +63,7 @@ interface FormFieldProps {
   required?: boolean
   description?: string
   error?: string
+  className?: string
   children: React.ReactNode
 }
 
@@ -72,10 +73,11 @@ export function FormField({
   required,
   description,
   error,
+  className,
   children,
 }: FormFieldProps) {
   return (
-    <div className="space-y-2">
+    <div className={cn('space-y-2', className)}>
       <label
         htmlFor={htmlFor}
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

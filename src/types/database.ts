@@ -79,6 +79,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       education: {
         Row: {
@@ -119,7 +120,26 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['education']['Insert']>
+        Update: {
+          id?: string
+          institution?: string
+          degree?: string
+          field_of_study?: string | null
+          start_date?: string | null
+          end_date?: string | null
+          is_current?: boolean
+          description?: string | null
+          grade?: string | null
+          logo_url?: string | null
+          location?: string | null
+          relevant_coursework?: string[] | null
+          achievements?: string[] | null
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       qualifications: {
         Row: {
@@ -152,7 +172,22 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['qualifications']['Insert']>
+        Update: {
+          id?: string
+          name?: string
+          institution?: string | null
+          issuing_organization?: string | null
+          issue_date?: string | null
+          description?: string | null
+          certificate_url?: string | null
+          credential_id?: string | null
+          logo_url?: string | null
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       skill_categories: {
         Row: {
@@ -175,7 +210,17 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['skill_categories']['Insert']>
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          icon?: string | null
+          display_order?: number
+          is_visible?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       skills: {
         Row: {
@@ -204,7 +249,20 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['skills']['Insert']>
+        Update: {
+          id?: string
+          category_id?: string
+          name?: string
+          level?: number | null
+          icon_url?: string | null
+          years_of_experience?: number | null
+          description?: string | null
+          display_order?: number
+          is_visible?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       projects: {
         Row: {
@@ -263,7 +321,35 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['projects']['Insert']>
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          short_description?: string | null
+          full_description?: string | null
+          image_url?: string | null
+          category?: string | null
+          technologies?: string[] | null
+          github_url?: string | null
+          live_url?: string | null
+          documentation_url?: string | null
+          paper_url?: string | null
+          start_date?: string | null
+          end_date?: string | null
+          status?: string | null
+          is_featured?: boolean
+          is_visible?: boolean
+          display_order?: number
+          key_features?: string[] | null
+          challenges?: string | null
+          solutions?: string | null
+          results?: string | null
+          my_role?: string | null
+          team_info?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       project_images: {
         Row: {
@@ -282,7 +368,15 @@ export interface Database {
           display_order?: number
           created_at?: string
         }
-        Update: Partial<Database['public']['Tables']['project_images']['Insert']>
+        Update: {
+          id?: string
+          project_id?: string
+          image_url?: string
+          caption?: string | null
+          display_order?: number
+          created_at?: string
+        }
+        Relationships: []
       }
       research: {
         Row: {
@@ -329,7 +423,29 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['research']['Insert']>
+        Update: {
+          id?: string
+          title?: string
+          abstract?: string | null
+          research_area?: string | null
+          research_question?: string | null
+          methodology?: string | null
+          technologies?: string[] | null
+          publication_status?: string | null
+          conference_journal?: string | null
+          publication_date?: string | null
+          paper_url?: string | null
+          doi?: string | null
+          github_url?: string | null
+          dataset_url?: string | null
+          image_url?: string | null
+          description?: string | null
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       certifications: {
         Row: {
@@ -362,7 +478,22 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['certifications']['Insert']>
+        Update: {
+          id?: string
+          name?: string
+          issuing_organization?: string
+          issue_date?: string | null
+          expiry_date?: string | null
+          credential_id?: string | null
+          credential_url?: string | null
+          image_url?: string | null
+          description?: string | null
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       experience: {
         Row: {
@@ -403,7 +534,26 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['experience']['Insert']>
+        Update: {
+          id?: string
+          job_title?: string
+          company?: string
+          company_logo_url?: string | null
+          employment_type?: string | null
+          start_date?: string | null
+          end_date?: string | null
+          is_current?: boolean
+          location?: string | null
+          description?: string | null
+          responsibilities?: string[] | null
+          technologies?: string[] | null
+          achievements?: string[] | null
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       achievements: {
         Row: {
@@ -436,7 +586,22 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['achievements']['Insert']>
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          date?: string | null
+          organization?: string | null
+          image_url?: string | null
+          certificate_url?: string | null
+          url?: string | null
+          category?: string | null
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       services: {
         Row: {
@@ -459,7 +624,17 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['services']['Insert']>
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          icon?: string | null
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       social_links: {
         Row: {
@@ -482,7 +657,17 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['social_links']['Insert']>
+        Update: {
+          id?: string
+          platform?: string
+          url?: string
+          icon?: string | null
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       site_settings: {
         Row: {
@@ -499,7 +684,14 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['site_settings']['Insert']>
+        Update: {
+          id?: string
+          key?: string
+          value?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       contact_messages: {
         Row: {
@@ -520,7 +712,16 @@ export interface Database {
           is_read?: boolean
           created_at?: string
         }
-        Update: Partial<Database['public']['Tables']['contact_messages']['Insert']>
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          subject?: string | null
+          message?: string
+          is_read?: boolean
+          created_at?: string
+        }
+        Relationships: []
       }
       resume: {
         Row: {
@@ -541,11 +742,29 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<Database['public']['Tables']['resume']['Insert']>
+        Update: {
+          id?: string
+          file_name?: string
+          file_url?: string
+          file_size?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
-    Views: Record<string, never>
-    Functions: Record<string, never>
-    Enums: Record<string, never>
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }

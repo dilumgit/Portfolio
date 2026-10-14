@@ -54,3 +54,46 @@ export function absoluteUrl(path: string): string {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   return `${baseUrl}${path}`
 }
+
+export function sortEducationReverseChronological<
+  T extends {
+    is_current?: boolean | null
+    end_date?: string | null
+    start_date?: string | null
+    display_order?: number | null
+  }
+>(a: T, b: T): number {
+  const aIsOngoing = !!a.is_current || !a.end_date
+  const bIsOngoing = !!b.is_current || !b.end_date
+
+  // 1. Currently enrolled / ongoing education appears first
+  if (aIsOngoing && !bIsOngoing) return -1
+  if (!aIsOngoing && bIsOngoing) return 1
+
+  // 2. If both are ongoing, compare start_date descending (newest first)
+  if (aIsOngoing && bIsOngoing) {
+    const aStart = a.start_date || ''
+    const bStart = b.start_date || ''
+    if (aStart !== bStart) {
+      return bStart.localeCompare(aStart)
+    }
+  } else {
+    // 3. If both are completed, compare end_date descending (most recent completion first)
+    const aEnd = a.end_date || ''
+    const bEnd = b.end_date || ''
+    if (aEnd !== bEnd) {
+      return bEnd.localeCompare(aEnd)
+    }
+
+    // Fallback if end dates match: compare start_date descending
+    const aStart = a.start_date || ''
+    const bStart = b.start_date || ''
+    if (aStart !== bStart) {
+      return bStart.localeCompare(aStart)
+    }
+  }
+
+  // 4. Stable fallback
+  return (a.display_order ?? 0) - (b.display_order ?? 0)
+}
+

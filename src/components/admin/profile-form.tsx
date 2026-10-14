@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { PageHeader, FormField } from '@/components/admin/shared'
+import { ProfileImageUpload } from '@/components/admin/profile-image-upload'
 import { upsertProfile } from '@/lib/actions/profile'
 import { toast } from '@/hooks/use-toast'
 import type { Profile } from '@/types/portfolio'
@@ -53,6 +54,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -127,6 +130,15 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             Basic details displayed throughout your portfolio
           </p>
         </div>
+
+        {/* Profile Image Upload & Management */}
+        <ProfileImageUpload
+          currentImageUrl={watch('profile_image_url')}
+          fullName={watch('full_name') || profile?.full_name || 'Your Name'}
+          onImageChange={(newUrl) => {
+            setValue('profile_image_url', newUrl, { shouldDirty: true })
+          }}
+        />
 
         <div className="grid md:grid-cols-2 gap-6">
           <FormField
@@ -208,25 +220,13 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           <FormField
             label="Website"
             htmlFor="website"
+            className="md:col-span-2"
             error={errors.website?.message}
           >
             <Input
               id="website"
               placeholder="https://yourwebsite.com"
               {...register('website')}
-            />
-          </FormField>
-
-          <FormField
-            label="Profile Image URL"
-            htmlFor="profile_image_url"
-            description="Upload to Supabase Storage and paste URL here"
-            error={errors.profile_image_url?.message}
-          >
-            <Input
-              id="profile_image_url"
-              placeholder="https://..."
-              {...register('profile_image_url')}
             />
           </FormField>
         </div>

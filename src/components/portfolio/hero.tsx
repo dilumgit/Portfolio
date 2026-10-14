@@ -1,10 +1,9 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowDown, Github, Linkedin, Mail, Download, ChevronRight, Sparkles } from 'lucide-react'
+import { ArrowDown, Github, Linkedin, Mail, Download, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { getInitials } from '@/lib/utils'
 import type { Profile, SocialLink, Resume } from '@/types/portfolio'
@@ -15,74 +14,7 @@ interface HeroProps {
   resume: Resume | null
 }
 
-const TypewriterText = ({ texts }: { texts: string[] }) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [currentText, setCurrentText] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  useEffect(() => {
-    const text = texts[currentIndex]
-    const timeout = setTimeout(
-      () => {
-        if (!isDeleting) {
-          setCurrentText(text.slice(0, currentText.length + 1))
-          if (currentText.length === text.length) {
-            setTimeout(() => setIsDeleting(true), 2000)
-          }
-        } else {
-          setCurrentText(text.slice(0, currentText.length - 1))
-          if (currentText.length === 0) {
-            setIsDeleting(false)
-            setCurrentIndex((prev) => (prev + 1) % texts.length)
-          }
-        }
-      },
-      isDeleting ? 50 : 100
-    )
-
-    return () => clearTimeout(timeout)
-  }, [currentText, isDeleting, currentIndex, texts])
-
-  return (
-    <span className="gradient-text">
-      {currentText}
-      <span className="animate-blink border-r-2 border-violet-400 ml-0.5">&nbsp;</span>
-    </span>
-  )
-}
-
-const FloatingOrb = ({
-  className,
-  delay = 0,
-}: {
-  className: string
-  delay?: number
-}) => (
-  <motion.div
-    className={`absolute rounded-full blur-3xl opacity-20 ${className}`}
-    animate={{
-      y: [-20, 20, -20],
-      scale: [1, 1.1, 1],
-    }}
-    transition={{
-      duration: 8,
-      delay,
-      repeat: Infinity,
-      ease: 'easeInOut',
-    }}
-  />
-)
-
 export function Hero({ profile, socialLinks, resume }: HeroProps) {
-  const typewriterTexts = profile?.hero_subtitle
-    ? [profile.hero_subtitle]
-    : [
-        'AI & ML Engineer',
-        'Research Enthusiast',
-        'Software Developer',
-        'Data Scientist',
-      ]
-
   const socialIconMap: Record<string, React.ReactNode> = {
     github: <Github className="w-4 h-4" />,
     linkedin: <Linkedin className="w-4 h-4" />,
@@ -92,138 +24,144 @@ export function Hero({ profile, socialLinks, resume }: HeroProps) {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-grid noise-overlay"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background bg-grid noise-overlay"
     >
-      {/* Gradient orbs */}
-      <FloatingOrb
-        className="w-96 h-96 bg-violet-600 -top-20 -left-20"
-        delay={0}
-      />
-      <FloatingOrb
-        className="w-80 h-80 bg-cyan-600 -bottom-10 -right-10"
-        delay={3}
-      />
-      <FloatingOrb
-        className="w-64 h-64 bg-blue-600 top-1/2 left-1/3"
-        delay={6}
-      />
-
-      {/* Radial gradient center glow */}
-      <div className="absolute inset-0 bg-gradient-radial from-violet-900/20 via-transparent to-transparent" />
+      {/* Soft stationary ambient glows */}
+      <div className="pointer-events-none absolute -top-28 -left-28 w-[500px] h-[500px] bg-violet-600/12 rounded-full blur-[130px]" />
+      <div className="pointer-events-none absolute top-1/3 -right-28 w-[550px] h-[550px] bg-cyan-600/10 rounded-full blur-[140px]" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-radial from-violet-950/15 via-background/40 to-background" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center min-h-screen py-24">
-          {/* Left: Text content */}
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-screen py-24 sm:py-28">
+          {/* Left Column: Text content (approx 55-60% width) */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="space-y-8"
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="lg:col-span-7 space-y-7 text-left"
           >
-            {/* Badge */}
+            {/* Availability Badge */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-sm font-medium"
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-500/25 bg-violet-500/10 text-violet-300 text-xs sm:text-sm font-medium tracking-wide shadow-xs"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
               <span>Available for opportunities</span>
             </motion.div>
 
-            {/* Heading */}
-            <div className="space-y-4">
+            {/* Main Headline */}
+            <div className="space-y-3">
               <motion.h1
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight"
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1]"
               >
                 {profile?.hero_heading || (
                   <>
-                    Hi, I&apos;m{' '}
+                    Hi! I&apos;m{' '}
                     <span className="gradient-text">
-                      {profile?.full_name || 'Your Name'}
+                      {profile?.full_name?.split(' ')[0] || 'Dilum'}
                     </span>
                   </>
                 )}
               </motion.h1>
 
+              {/* Subtitle */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-2xl sm:text-3xl font-semibold text-muted-foreground h-10"
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight"
               >
-                <TypewriterText texts={typewriterTexts} />
+                <span className="gradient-text">
+                  {profile?.hero_subtitle ||
+                    profile?.professional_title ||
+                    'AI & ML Enthusiast'}
+                </span>
               </motion.div>
             </div>
 
             {/* Description */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-lg text-muted-foreground leading-relaxed max-w-xl"
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-xl"
             >
               {profile?.hero_description ||
                 profile?.tagline ||
-                'Passionate about building intelligent systems that solve real-world problems. Specializing in machine learning, AI research, and software engineering.'}
+                'Exploring AI and Machine Learning to build intelligent solutions'}
             </motion.p>
 
             {/* CTA Buttons */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex flex-wrap gap-4"
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex flex-wrap items-center gap-4 pt-1"
             >
-              <Button size="lg" variant="gradient" asChild>
-                <a
-                  href={profile?.hero_cta_url || '#projects'}
-                >
+              <Button
+                size="lg"
+                variant="gradient"
+                className="h-12 px-7 text-base font-semibold shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300"
+                asChild
+              >
+                <a href={profile?.hero_cta_url || '#projects'}>
                   {profile?.hero_cta_text || 'View My Work'}
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 ml-1" />
                 </a>
               </Button>
 
-              {resume ? (
-                <Button size="lg" variant="outline" asChild>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 px-7 text-base font-semibold border-white/15 bg-white/[0.02] hover:bg-white/[0.06] hover:border-violet-500/30 transition-all duration-300"
+                asChild
+              >
+                {profile?.hero_secondary_cta_url ? (
+                  <a href={profile.hero_secondary_cta_url}>
+                    {profile?.hero_secondary_cta_text || 'Get In Touch'}
+                  </a>
+                ) : resume && profile?.hero_secondary_cta_text?.toLowerCase().includes('cv') ? (
                   <a
                     href={resume.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     download
                   >
-                    <Download className="w-4 h-4" />
-                    {profile?.hero_secondary_cta_text || 'Download CV'}
+                    <Download className="w-4 h-4 mr-2" />
+                    {profile.hero_secondary_cta_text}
                   </a>
-                </Button>
-              ) : (
-                <Button size="lg" variant="outline" asChild>
+                ) : (
                   <a href="#contact">
                     {profile?.hero_secondary_cta_text || 'Get In Touch'}
                   </a>
-                </Button>
-              )}
+                )}
+              </Button>
             </motion.div>
 
             {/* Social Links */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="flex items-center gap-4"
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="flex items-center gap-3 pt-2"
             >
               {profile?.github_url && (
                 <a
                   href={profile.github_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
+                  className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-violet-500/40 transition-all duration-200"
                   aria-label="GitHub"
                 >
-                  <Github className="w-5 h-5" />
+                  <Github className="w-4 h-4" />
                 </a>
               )}
               {profile?.linkedin_url && (
@@ -231,19 +169,19 @@ export function Hero({ profile, socialLinks, resume }: HeroProps) {
                   href={profile.linkedin_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
+                  className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-violet-500/40 transition-all duration-200"
                   aria-label="LinkedIn"
                 >
-                  <Linkedin className="w-5 h-5" />
+                  <Linkedin className="w-4 h-4" />
                 </a>
               )}
               {profile?.email && (
                 <a
                   href={`mailto:${profile.email}`}
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
+                  className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-violet-500/40 transition-all duration-200"
                   aria-label="Email"
                 >
-                  <Mail className="w-5 h-5" />
+                  <Mail className="w-4 h-4" />
                 </a>
               )}
               {socialLinks.map((link) => (
@@ -252,12 +190,12 @@ export function Hero({ profile, socialLinks, resume }: HeroProps) {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
+                  className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-violet-500/40 transition-all duration-200"
                   aria-label={link.platform}
                 >
                   {socialIconMap[link.platform.toLowerCase()] || (
-                    <span className="text-xs font-medium">
-                      {link.platform.charAt(0)}
+                    <span className="text-xs font-semibold uppercase px-1">
+                      {link.platform.slice(0, 2)}
                     </span>
                   )}
                 </a>
@@ -265,76 +203,63 @@ export function Hero({ profile, socialLinks, resume }: HeroProps) {
             </motion.div>
           </motion.div>
 
-          {/* Right: Profile image */}
+          {/* Right Column: Profile Image (approx 40-45% width, standing on its own) */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-            className="flex justify-center lg:justify-end"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+            className="lg:col-span-5 flex justify-center lg:justify-end items-center"
           >
             <div className="relative">
-              {/* Outer glow ring */}
-              <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-violet-500/30 via-cyan-500/30 to-violet-500/30 blur-xl animate-glow-pulse" />
+              {/* Soft ambient lighting glow behind portrait */}
+              <div className="absolute -inset-6 sm:-inset-10 rounded-full bg-gradient-to-tr from-violet-600/25 via-purple-600/15 to-cyan-500/20 blur-3xl opacity-75 pointer-events-none" />
 
-              {/* Ring border */}
-              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-violet-500 via-cyan-500 to-violet-500 opacity-75" />
-
-              {/* Profile image container */}
-              <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-4 border-background">
+              {/* Clean portrait container */}
+              <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[390px] lg:h-[390px] xl:w-[430px] xl:h-[430px] rounded-full overflow-hidden border border-white/15 bg-secondary/30 shadow-2xl shadow-violet-950/40">
                 {profile?.profile_image_url ? (
                   <Image
                     src={profile.profile_image_url}
-                    alt={profile.full_name}
+                    alt={profile.full_name || 'Profile'}
                     fill
-                    className="object-cover"
                     priority
+                    sizes="(max-width: 640px) 256px, (max-width: 768px) 320px, (max-width: 1024px) 390px, 430px"
+                    className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-violet-600 via-purple-600 to-cyan-600 flex items-center justify-center">
-                    <span className="text-6xl font-bold text-white">
-                      {getInitials(profile?.full_name || 'YN')}
+                  <div className="w-full h-full bg-gradient-to-br from-violet-600/80 via-purple-700/80 to-cyan-600/80 flex items-center justify-center">
+                    <span className="text-6xl sm:text-7xl font-bold text-white tracking-wider">
+                      {getInitials(profile?.full_name || 'DK')}
                     </span>
                   </div>
                 )}
               </div>
-
-              {/* Floating tech badges */}
-              <motion.div
-                animate={{ y: [-5, 5, -5] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute -top-4 -right-4 glass-card px-3 py-2 text-xs font-medium text-cyan-400 border-cyan-500/20"
-              >
-                🤖 AI/ML
-              </motion.div>
-              <motion.div
-                animate={{ y: [5, -5, 5] }}
-                transition={{ duration: 5, repeat: Infinity }}
-                className="absolute -bottom-4 -left-4 glass-card px-3 py-2 text-xs font-medium text-violet-400 border-violet-500/20"
-              >
-                💻 Software Dev
-              </motion.div>
             </div>
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Minimal Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground"
+          transition={{ delay: 1 }}
+          className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-muted-foreground/60 hover:text-muted-foreground transition-colors"
         >
-          <span className="text-xs font-medium tracking-widest uppercase">
-            Scroll
-          </span>
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+          <a
+            href="#about"
+            className="flex flex-col items-center gap-1.5 text-xs font-medium tracking-widest uppercase"
+            aria-label="Scroll to About section"
           >
-            <ArrowDown className="w-4 h-4" />
-          </motion.div>
+            <span>Scroll</span>
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <ArrowDown className="w-3.5 h-3.5" />
+            </motion.div>
+          </a>
         </motion.div>
       </div>
     </section>
   )
 }
+

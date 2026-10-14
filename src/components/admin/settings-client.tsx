@@ -1,12 +1,14 @@
 'use client'
 
 import React, { useState, useTransition } from 'react'
-import { Save, Settings, Loader2 } from 'lucide-react'
+import { Save, Settings, Loader2, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import { PageHeader, FormField } from '@/components/admin/shared'
 import { updateSiteSettings } from '@/lib/actions/content'
+import { createClient } from '@/lib/supabase/client'
 import { toast } from '@/hooks/use-toast'
 
 interface Props { settings: Record<string, string> }
@@ -14,6 +16,13 @@ interface Props { settings: Record<string, string> }
 export function SettingsClient({ settings: initial }: Props) {
   const [settings, setSettings] = useState(initial)
   const [isPending, startTransition] = useTransition()
+
+  // Password reset state
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
 
   const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault()
@@ -24,13 +33,156 @@ export function SettingsClient({ settings: initial }: Props) {
     })
   }
 
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (newPassword.length < 6) {
+      toast({
+        title: 'Invalid Password',
+        description: 'Password must be at least 6 characters long.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: 'Password Mismatch',
+        description: 'Passwords do not match.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setIsUpdatingPassword(true)
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      })
+
+      if (error) {
+        toast({
+          title: 'Error updating password',
+          description: error.message,
+          variant: 'destructive',
+        })
+      } else {
+        toast({
+          title: 'Password Updated!',
+          description: 'Your new password is now active. You can log in with it next time.',
+          variant: 'success' as any,
+        })
+        setNewPassword('')
+        setConfirmPassword('')
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err?.message || 'Failed to update password.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsUpdatingPassword(false)
+    }
+  }
+
   const updateField = (key: string, value: string) => setSettings(prev => ({ ...prev, [key]: value }))
 
   return (
-    <div>
-      <PageHeader title="Site Settings" description="Configure SEO, analytics, and global settings" />
+    <div className="space-y-8 max-w-3xl">
+      <PageHeader title="Site Settings" description="Configure SEO, analytics, and admin security settings" />
 
-      <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl">
+      {/* Security & Password */}
+      <div className="glass-card p-6 space-y-6 border-violet-500/20">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
+            <Lock className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Admin Password & Security</h2>
+            <p className="text-sm text-muted-foreground">
+              Set or update your admin password so you can log in directly without email verification
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handlePasswordUpdate} className="space-y-4 pt-2">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="settings-new-password">New Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="settings-new-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Min 6 characters"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="pl-10 pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="settings-confirm-password">Confirm New Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="settings-confirm-password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Repeat new password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  className="pl-10 pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Toggle password visibility"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="submit"
+              variant="gradient"
+              disabled={isUpdatingPassword || !newPassword || !confirmPassword}
+              className="gap-2"
+            >
+              {isUpdatingPassword ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Updating Password...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  Update Password
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* SEO */}
         <div className="glass-card p-6 space-y-6">
           <div>
@@ -89,3 +241,4 @@ export function SettingsClient({ settings: initial }: Props) {
     </div>
   )
 }
+

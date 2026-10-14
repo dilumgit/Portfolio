@@ -3,38 +3,55 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { sortEducationReverseChronological } from '@/lib/utils'
 import type { ActionResult } from '@/types/portfolio'
 import type { Database } from '@/types/database'
 
 type EducationInsert = Database['public']['Tables']['education']['Insert']
 
 export async function getEducation() {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('education')
-    .select('*')
-    .eq('is_visible', true)
-    .order('display_order')
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('education')
+      .select('*')
+      .eq('is_visible', true)
+      .order('is_current', { ascending: false })
+      .order('end_date', { ascending: false, nullsFirst: true })
+      .order('start_date', { ascending: false, nullsFirst: true })
+      .order('display_order', { ascending: true })
 
-  if (error) {
-    console.error('Error fetching education:', error)
+    if (error) {
+      console.error('Error fetching education:', error)
+      return []
+    }
+    return (data || []).sort(sortEducationReverseChronological)
+  } catch (err: any) {
+    console.error('Unexpected error fetching education:', err?.message || err)
     return []
   }
-  return data
 }
 
 export async function getAllEducation() {
-  const supabase = createAdminClient()
-  const { data, error } = await supabase
-    .from('education')
-    .select('*')
-    .order('display_order')
+  try {
+    const supabase = createAdminClient()
+    const { data, error } = await supabase
+      .from('education')
+      .select('*')
+      .order('is_current', { ascending: false })
+      .order('end_date', { ascending: false, nullsFirst: true })
+      .order('start_date', { ascending: false, nullsFirst: true })
+      .order('display_order', { ascending: true })
 
-  if (error) {
-    console.error('Error fetching education:', error)
+    if (error) {
+      console.error('Error fetching education:', error)
+      return []
+    }
+    return (data || []).sort(sortEducationReverseChronological)
+  } catch (err: any) {
+    console.error('Unexpected error fetching education:', err?.message || err)
     return []
   }
-  return data
 }
 
 export async function createEducation(

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Moon, Sun, Download } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -31,12 +32,20 @@ interface NavigationProps {
 }
 
 export function Navigation({ profile, resume }: NavigationProps) {
+  const pathname = usePathname()
+  const isHomePage = pathname === '/'
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('')
+  const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
 
+  const getNavHref = (href: string) => {
+    return isHomePage ? href : `/${href}`
+  }
+
   useEffect(() => {
+    setMounted(true)
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
 
@@ -87,10 +96,10 @@ export function Navigation({ profile, resume }: NavigationProps) {
               {defaultNavItems.map((item) => (
                 <a
                   key={item.href}
-                  href={item.href}
+                  href={getNavHref(item.href)}
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
-                    activeSection === item.href.slice(1)
+                    isHomePage && activeSection === item.href.slice(1)
                       ? 'text-foreground bg-primary/10'
                       : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                   )}
@@ -107,10 +116,14 @@ export function Navigation({ profile, resume }: NavigationProps) {
                 className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
                 aria-label="Toggle theme"
               >
-                {theme === 'dark' ? (
-                  <Sun className="w-4 h-4" />
+                {mounted ? (
+                  theme === 'dark' ? (
+                    <Sun className="w-4 h-4" />
+                  ) : (
+                    <Moon className="w-4 h-4" />
+                  )
                 ) : (
-                  <Moon className="w-4 h-4" />
+                  <div className="w-4 h-4" />
                 )}
               </button>
 
@@ -160,7 +173,7 @@ export function Navigation({ profile, resume }: NavigationProps) {
                 {defaultNavItems.map((item) => (
                   <a
                     key={item.href}
-                    href={item.href}
+                    href={getNavHref(item.href)}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
                   >

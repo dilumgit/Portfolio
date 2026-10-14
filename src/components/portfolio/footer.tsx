@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Github, Linkedin, Mail, Heart, ExternalLink } from 'lucide-react'
 import type { Profile, SocialLink } from '@/types/portfolio'
 
@@ -11,6 +12,8 @@ interface FooterProps {
 }
 
 export function Footer({ profile, socialLinks }: FooterProps) {
+  const pathname = usePathname()
+  const isHomePage = pathname === '/'
   const year = new Date().getFullYear()
 
   const quickLinks = [
@@ -52,7 +55,7 @@ export function Footer({ profile, socialLinks }: FooterProps) {
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <a
-                    href={link.href}
+                    href={isHomePage ? link.href : `/${link.href}`}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}

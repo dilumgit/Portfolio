@@ -76,9 +76,9 @@ async function DashboardStats() {
   ]
 
   const quickActions = [
-    { label: 'Add Project', href: '/admin/projects/new', icon: Plus },
-    { label: 'Add Certification', href: '/admin/certifications/new', icon: Plus },
-    { label: 'Add Skill', href: '/admin/skills', icon: Plus },
+    { label: 'Manage Projects', href: '/admin/projects', icon: Folder },
+    { label: 'Manage Certifications', href: '/admin/certifications', icon: Award },
+    { label: 'Manage Skills', href: '/admin/skills', icon: Code2 },
     { label: 'Edit Profile', href: '/admin/profile', icon: User },
     { label: 'View Portfolio', href: '/', icon: Eye, external: true },
   ]

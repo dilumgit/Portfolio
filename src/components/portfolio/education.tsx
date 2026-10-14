@@ -4,7 +4,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { GraduationCap, Calendar, MapPin, Award } from 'lucide-react'
 import Image from 'next/image'
-import { formatDateRange, getInitials } from '@/lib/utils'
+import { formatDateRange, getInitials, sortEducationReverseChronological } from '@/lib/utils'
 import type { Education } from '@/types/portfolio'
 
 interface EducationSectionProps {
@@ -18,6 +18,8 @@ const fadeInUp = {
 
 export function EducationSection({ education }: EducationSectionProps) {
   if (!education.length) return null
+
+  const sortedEducation = [...education].sort(sortEducationReverseChronological)
 
   return (
     <section id="education" className="py-24 relative">
@@ -52,7 +54,7 @@ export function EducationSection({ education }: EducationSectionProps) {
             <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-violet-500/50 via-violet-500/20 to-transparent" />
 
             <div className="space-y-8">
-              {education.map((edu, index) => (
+              {sortedEducation.map((edu, index) => (
                 <motion.div
                   key={edu.id}
                   variants={fadeInUp}

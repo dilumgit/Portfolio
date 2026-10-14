@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Database } from '@/types/database'
 
@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options?: CookieOptions }[]) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
@@ -36,15 +36,18 @@ export async function middleware(request: NextRequest) {
 
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
   const isLoginPage = request.nextUrl.pathname === '/admin/login'
+  const isForgotPasswordPage = request.nextUrl.pathname === '/admin/forgot-password'
+  const isResetPasswordPage = request.nextUrl.pathname === '/admin/reset-password'
+  const isPublicAuthRoute = isLoginPage || isForgotPasswordPage || isResetPasswordPage
 
-  if (isAdminRoute && !isLoginPage && !user) {
+  if (isAdminRoute && !isPublicAuthRoute && !user) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/admin/login'
     loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  if (isLoginPage && user) {
+  if ((isLoginPage || isForgotPasswordPage) && user) {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = '/admin/dashboard'
     return NextResponse.redirect(dashboardUrl)

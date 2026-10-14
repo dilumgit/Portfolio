@@ -34,11 +34,11 @@ export async function generateMetadata(): Promise<Metadata> {
     getSiteSettings(),
   ])
 
-  const title =
-    settings['site_title'] ||
-    profile?.full_name
-      ? `${profile?.full_name} | ${profile?.professional_title || 'Portfolio'}`
-      : 'Personal Portfolio'
+  const siteTitle = settings['site_title']
+  const profileTitle = profile?.full_name
+    ? `${profile.full_name} | ${profile.professional_title || 'Portfolio'}`
+    : 'Personal Portfolio'
+  const title = siteTitle || profileTitle
 
   const description =
     settings['meta_description'] ||

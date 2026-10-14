@@ -233,15 +233,23 @@ export async function deleteContactMessage(id: string): Promise<ActionResult> {
 
 // --- Resume ---
 export async function getActiveResume() {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('resume')
-    .select('*')
-    .eq('is_active', true)
-    .limit(1)
-    .single()
-  if (error) return null
-  return data
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('resume')
+      .select('*')
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle()
+    if (error) {
+      console.error('Error fetching active resume:', error.message)
+      return null
+    }
+    return data
+  } catch (err: any) {
+    console.error('Unexpected error fetching active resume:', err?.message || err)
+    return null
+  }
 }
 
 export async function getAllResumes() {
@@ -281,11 +289,11 @@ export async function deleteResume(id: string): Promise<ActionResult> {
 }
 
 // --- Site Settings ---
-export async function getSiteSettings() {
+export async function getSiteSettings(): Promise<Record<string, string>> {
   const supabase = await createClient()
   const { data, error } = await supabase.from('site_settings').select('*')
-  if (error) return {}
-  return Object.fromEntries(data.map((s) => [s.key, s.value]))
+  if (error || !data) return {}
+  return Object.fromEntries(data.map((s) => [s.key, s.value || '']))
 }
 
 export async function updateSiteSetting(key: string, value: string): Promise<ActionResult> {
