@@ -92,6 +92,7 @@ export function About({ profile }: AboutProps) {
                         src={profile.profile_image_url}
                         alt={profile.full_name}
                         fill
+                        sizes="128px"
                         className="object-cover"
                       />
                     ) : (

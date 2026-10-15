@@ -46,25 +46,71 @@ export function Navigation({ profile, resume }: NavigationProps) {
 
   useEffect(() => {
     setMounted(true)
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
+    let rafId: number | null = null
 
-      const sections = defaultNavItems.map((item) => item.href.slice(1))
-      for (const section of sections.reverse()) {
-        const element = document.getElementById(section)
-        if (element) {
-          const rect = element.getBoundingClientRect()
-          if (rect.top <= 100) {
-            setActiveSection(section)
-            break
-          }
-        }
-      }
+    const handleScroll = () => {
+      if (rafId !== null) return
+      rafId = requestAnimationFrame(() => {
+        const scrolled = window.scrollY > 20
+        setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev))
+        rafId = null
+      })
     }
 
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafId !== null) cancelAnimationFrame(rafId)
+    }
   }, [])
+
+  useEffect(() => {
+    if (!isHomePage) return
+
+    const sectionIds = defaultNavItems.map((item) => item.href.slice(1))
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean) as HTMLElement[]
+
+    if (elements.length === 0) return
+
+    const visibleSections = new Map<string, number>()
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            visibleSections.set(entry.target.id, entry.intersectionRatio)
+          } else {
+            visibleSections.delete(entry.target.id)
+          }
+        })
+
+        // Find the topmost visible section in natural document order
+        for (const id of sectionIds) {
+          if (visibleSections.has(id)) {
+            setActiveSection(id)
+            return
+          }
+        }
+
+        if (window.scrollY < 200) {
+          setActiveSection('')
+        }
+      },
+      {
+        rootMargin: '-80px 0px -40% 0px',
+        threshold: [0, 0.1, 0.25],
+      }
+    )
+
+    elements.forEach((el) => observer.observe(el))
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [isHomePage])
 
   return (
     <>
@@ -75,7 +121,7 @@ export function Navigation({ profile, resume }: NavigationProps) {
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
           isScrolled
-            ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-black/20'
+            ? 'bg-background/80 backdrop-blur-md border-b border-border/50 shadow-lg shadow-black/20'
             : 'bg-transparent'
         )}
       >
@@ -94,7 +140,7 @@ export function Navigation({ profile, resume }: NavigationProps) {
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1">
               {defaultNavItems.map((item) => (
-                <a
+                <Link
                   key={item.href}
                   href={getNavHref(item.href)}
                   className={cn(
@@ -105,7 +151,7 @@ export function Navigation({ profile, resume }: NavigationProps) {
                   )}
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -171,14 +217,14 @@ export function Navigation({ profile, resume }: NavigationProps) {
             <div className="bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
               <div className="container mx-auto px-4 py-4 space-y-1">
                 {defaultNavItems.map((item) => (
-                  <a
+                  <Link
                     key={item.href}
                     href={getNavHref(item.href)}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 ))}
                 {resume && (
                   <a
