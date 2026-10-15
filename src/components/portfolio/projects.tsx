@@ -180,8 +180,10 @@ export function Projects({ projects, featured = false }: ProjectsProps) {
       ? projects
       : projects.filter((p) => p.category === activeFilter)
 
+  const hasFeatured = projects.some((p) => p.is_featured)
+
   const displayProjects = featured
-    ? projects.filter((p) => p.is_featured).slice(0, 6)
+    ? (hasFeatured ? projects.filter((p) => p.is_featured) : projects).slice(0, 6)
     : filteredProjects
 
   return (
@@ -198,13 +200,23 @@ export function Projects({ projects, featured = false }: ProjectsProps) {
           <motion.div variants={fadeInUp} className="text-center space-y-4">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-400 text-sm font-medium">
               <Folder className="w-3.5 h-3.5" />
-              {featured ? 'Featured Projects' : 'Projects'}
+              {featured
+                ? hasFeatured
+                  ? 'Featured Projects'
+                  : 'Recent Projects'
+                : 'Projects'}
             </div>
             <h2 className="section-title">
               {featured ? (
-                <>
-                  Featured <span className="gradient-text">Work</span>
-                </>
+                hasFeatured ? (
+                  <>
+                    Featured <span className="gradient-text">Work</span>
+                  </>
+                ) : (
+                  <>
+                    Recent <span className="gradient-text">Projects</span>
+                  </>
+                )
               ) : (
                 <>
                   All <span className="gradient-text">Projects</span>
@@ -213,7 +225,9 @@ export function Projects({ projects, featured = false }: ProjectsProps) {
             </h2>
             <p className="section-subtitle mx-auto">
               {featured
-                ? 'Highlighted projects showcasing my technical expertise'
+                ? hasFeatured
+                  ? 'Highlighted projects showcasing my technical expertise'
+                  : 'Recent technical projects and development work'
                 : 'A comprehensive collection of projects and experiments'}
             </p>
           </motion.div>

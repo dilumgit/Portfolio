@@ -23,7 +23,27 @@ export async function getFeaturedProjects(): Promise<ProjectWithImages[]> {
     console.error('Error fetching featured projects:', error)
     return []
   }
-  return (data as unknown as ProjectWithImages[]) || []
+
+  // If at least one visible featured project exists, return featured projects
+  if (data && data.length > 0) {
+    return (data as unknown as ProjectWithImages[]) || []
+  }
+
+  // Fallback: If no featured visible projects exist, display recent visible projects
+  const { data: fallbackData, error: fallbackError } = await supabase
+    .from('projects')
+    .select('*, project_images(*)')
+    .eq('is_visible', true)
+    .order('display_order')
+    .order('created_at', { ascending: false })
+    .limit(6)
+
+  if (fallbackError) {
+    console.error('Error fetching fallback projects:', fallbackError)
+    return []
+  }
+
+  return (fallbackData as unknown as ProjectWithImages[]) || []
 }
 
 export async function getAllPublicProjects(): Promise<ProjectWithImages[]> {
