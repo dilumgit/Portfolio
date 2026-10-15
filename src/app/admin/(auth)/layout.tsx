@@ -17,8 +17,9 @@ export default async function AdminAuthLayout({
   }
 
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase()
-  if (adminEmail && user.email?.trim().toLowerCase() !== adminEmail) {
-    console.error(`Unauthorized admin dashboard access attempt by ${user.email}`)
+  const userEmail = user.email?.trim().toLowerCase()
+  if (!adminEmail || !userEmail || userEmail !== adminEmail) {
+    console.error(`Unauthorized admin dashboard access attempt by ${user.email || 'unknown'}`)
     redirect('/admin/login?error=Unauthorized')
   }
 

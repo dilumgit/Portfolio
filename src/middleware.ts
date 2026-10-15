@@ -41,7 +41,8 @@ export async function middleware(request: NextRequest) {
   const isPublicAuthRoute = isLoginPage || isForgotPasswordPage || isResetPasswordPage
 
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase()
-  const isUserAdmin = Boolean(user && (!adminEmail || user.email?.trim().toLowerCase() === adminEmail))
+  const userEmail = user?.email?.trim().toLowerCase()
+  const isUserAdmin = Boolean(user && adminEmail && userEmail && userEmail === adminEmail)
 
   if (isAdminRoute && !isPublicAuthRoute) {
     if (!user) {
