@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Note: Inter font is loaded via next/font/google in layout.tsx (self-hosted & optimised).
+   JetBrains Mono is declared via CSS variable below for code blocks. */
 
 @layer base {
   :root {

@@ -30,6 +30,31 @@ export async function getProfile() {
   }
 }
 
+/**
+ * Fetches only the columns needed by public-facing portfolio components.
+ * Keeps the Supabase response payload small for ISR-cached pages.
+ */
+export async function getPublicProfile() {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+    if (error) {
+      console.error('Error fetching public profile:', error.message)
+      return null
+    }
+    return data
+  } catch (err: any) {
+    console.error('Unexpected error fetching public profile:', err?.message || err)
+    return null
+  }
+}
+
 export async function upsertProfile(
   formData: Partial<ProfileInsert>
 ): Promise<ActionResult> {

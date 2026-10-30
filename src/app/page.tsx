@@ -1,4 +1,6 @@
-export const dynamic = 'force-dynamic'
+// Revalidate the portfolio page every 5 minutes (ISR)
+// Admin mutations call revalidatePath('/') to immediately bust the cache
+export const revalidate = 300
 
 import type { Metadata } from 'next'
 import { Navigation } from '@/components/portfolio/navigation'
@@ -14,7 +16,7 @@ import { Achievements } from '@/components/portfolio/achievements'
 import { Services } from '@/components/portfolio/services'
 import { Contact } from '@/components/portfolio/contact'
 import { Footer } from '@/components/portfolio/footer'
-import { getProfile, getSocialLinks } from '@/lib/actions/profile'
+import { getPublicProfile, getSocialLinks } from '@/lib/actions/profile'
 import { getEducation } from '@/lib/actions/education'
 import { getSkillCategories } from '@/lib/actions/skills'
 import { getFeaturedProjects } from '@/lib/actions/projects'
@@ -30,7 +32,7 @@ import { getCertifications } from '@/lib/actions/certifications'
 
 export async function generateMetadata(): Promise<Metadata> {
   const [profile, settings] = await Promise.all([
-    getProfile(),
+    getPublicProfile(),
     getSiteSettings(),
   ])
 
@@ -73,7 +75,7 @@ export default async function HomePage() {
     achievements,
     services,
   ] = await Promise.all([
-    getProfile(),
+    getPublicProfile(),
     getSocialLinks(),
     getActiveResume(),
     getEducation(),

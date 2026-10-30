@@ -413,7 +413,7 @@ export async function deleteResume(id: string): Promise<ActionResult> {
 // --- Site Settings ---
 export async function getSiteSettings(): Promise<Record<string, string>> {
   const supabase = await createClient()
-  const { data, error } = await supabase.from('site_settings').select('*')
+  const { data, error } = await supabase.from('site_settings').select('key, value')
   if (error || !data) return {}
   return Object.fromEntries(data.map((s) => [s.key, s.value || '']))
 }
