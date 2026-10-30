@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Github, Linkedin, Mail, Heart, ExternalLink } from 'lucide-react'
+import { Github, Linkedin, Mail, Heart, ExternalLink, Lock } from 'lucide-react'
 import type { Profile, SocialLink } from '@/types/portfolio'
 
 interface FooterProps {
@@ -112,9 +112,20 @@ export function Footer({ profile, socialLinks }: FooterProps) {
         {/* Divider */}
         <div className="border-t border-border/50 pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
-              © {year} {profile?.full_name || 'Portfolio'}. All rights reserved.
-            </p>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <p>
+                © {year} {profile?.full_name || 'Portfolio'}. All rights reserved.
+              </p>
+              <span>•</span>
+              <Link
+                href="/admin/login"
+                className="hover:text-foreground transition-colors inline-flex items-center gap-1 text-xs text-muted-foreground/60 hover:text-muted-foreground"
+                title="Admin Portal"
+              >
+                <Lock className="w-3 h-3" />
+                Admin
+              </Link>
+            </div>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               Built with{' '}
               <Heart className="w-3.5 h-3.5 text-red-400 fill-current" /> using
