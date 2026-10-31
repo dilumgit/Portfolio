@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useTransition } from 'react'
+import Image from 'next/image'
 import { Plus, Pencil, Calendar, GraduationCap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +13,7 @@ import {
   ToggleVisibility,
 } from '@/components/admin/shared'
 import { DeleteButton } from '@/components/admin/delete-button'
+import { EducationLogoUpload } from '@/components/admin/education-logo-upload'
 import {
   createEducation,
   updateEducation,
@@ -219,14 +221,14 @@ export function EducationClient({ education: initialEducation }: EducationClient
                 />
               </FormField>
 
-              <FormField label="Logo URL" htmlFor="edu-logo">
-                <Input
-                  id="edu-logo"
-                  placeholder="https://..."
+              <div className="md:col-span-2">
+                <EducationLogoUpload
                   value={form.logo_url}
-                  onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
+                  onChange={(url) => setForm({ ...form, logo_url: url })}
+                  institutionName={form.institution}
+                  disabled={isPending}
                 />
-              </FormField>
+              </div>
             </div>
 
             <div className="flex items-center gap-6">
@@ -294,8 +296,19 @@ export function EducationClient({ education: initialEducation }: EducationClient
               key={edu.id}
               className="glass-card p-5 flex items-start gap-4"
             >
-              <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
-                <GraduationCap className="w-5 h-5 text-violet-400" />
+              <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 overflow-hidden relative">
+                {edu.logo_url ? (
+                  <Image
+                    src={edu.logo_url}
+                    alt={edu.institution}
+                    width={40}
+                    height={40}
+                    className="object-contain p-1"
+                    unoptimized
+                  />
+                ) : (
+                  <GraduationCap className="w-5 h-5 text-violet-400" />
+                )}
               </div>
 
               <div className="flex-1 min-w-0">

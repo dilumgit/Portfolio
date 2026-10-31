@@ -276,3 +276,99 @@ export async function deleteFile(
 
   return { success: true }
 }
+
+export async function uploadEducationLogo(
+  formData: FormData
+): Promise<ActionResult<{ url: string }>> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
+  try {
+    const supabase = createAdminClient()
+    const file = formData.get('file') as File
+
+    if (!file) {
+      return { success: false, error: 'No file provided' }
+    }
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'image/svg+xml',
+    ]
+    if (!allowedTypes.includes(file.type)) {
+      return {
+        success: false,
+        error: 'Invalid file type. Only JPG, PNG, SVG, GIF, and WebP images are allowed.',
+      }
+    }
+
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      return { success: false, error: 'File size exceeds the 5MB limit.' }
+    }
+
+    const bucket = 'portfolio-images'
+    const fileExt = file.name.split('.').pop() || 'png'
+    const fileName = `education/logo-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false,
+      })
+
+    if (error) {
+      console.error('Education logo upload error:', error.message)
+      return { success: false, error: `Upload failed: ${error.message}` }
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(bucket).getPublicUrl(data.path)
+
+    return {
+      success: true,
+      data: { url: publicUrl },
+      message: 'Institution logo uploaded successfully',
+    }
+  } catch (err: any) {
+    console.error('Unexpected error in uploadEducationLogo:', err)
+    return {
+      success: false,
+      error: err?.message || 'An unexpected error occurred while uploading the logo.',
+    }
+  }
+}
+
+export async function removeEducationLogo(logoUrl: string): Promise<ActionResult> {
+  const auth = await verifyAdmin()
+  if (!auth.authorized) {
+    return { success: false, error: auth.error }
+  }
+
+  if (!logoUrl) {
+    return { success: true }
+  }
+
+  try {
+    const supabase = createAdminClient()
+    const bucket = 'portfolio-images'
+
+    if (logoUrl.includes('/portfolio-images/')) {
+      const path = logoUrl.split('/portfolio-images/')[1]
+      if (path) {
+        await supabase.storage.from(bucket).remove([path])
+      }
+    }
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error removing education logo:', err)
+    return { success: false, error: err?.message || 'Failed to remove logo file.' }
+  }
+}
